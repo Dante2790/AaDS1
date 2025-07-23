@@ -54,6 +54,9 @@ public:
         catch (invalid_argument er) {
             cerr << "error: " << er.what() << endl;
         }
+        catch (bad_alloc er) {
+            cerr << "error: " << er.what() << endl;
+        }
     };
     DictionaryList(DictionaryList&& other) : size(0), first(nullptr), last(nullptr) {
         try {
@@ -95,6 +98,9 @@ public:
         catch (invalid_argument er) {
             cerr << "error: " << er.what() << endl;
         }
+        catch (bad_alloc er) {
+            cerr << "error: " << er.what() << endl;
+        }
     };
 
     DictionaryList& operator=(const DictionaryList& other) {
@@ -120,6 +126,9 @@ public:
             return *this;
         }
         catch (invalid_argument er) {
+            cerr << "error: " << er.what() << endl;
+        }
+        catch (bad_alloc er) {
             cerr << "error: " << er.what() << endl;
         }
     };
@@ -165,6 +174,9 @@ public:
         catch (invalid_argument er) {
             cerr << "error: " << er.what() << endl;
         }
+        catch (bad_alloc er) {
+            cerr << "error: " << er.what() << endl;
+        }
     };
 
     ~DictionaryList() noexcept {
@@ -176,48 +188,57 @@ public:
 
     // Вставка и удаление
     void push_back(const T1& new_data) {
+        try {
 
-        Node* new_node = new Node(new_data);
+            Node* new_node = new Node(new_data);
 
-        switch (is_empty()) {
-        case true:
-            this->first = new_node;
-            this->last = new_node;
-            break;
-        case false:
-            this->last->next = new_node;
-            this->last = new_node;
-            break;
+            switch (is_empty()) {
+            case true:
+                this->first = new_node;
+                this->last = new_node;
+                break;
+            case false:
+                this->last->next = new_node;
+                this->last = new_node;
+                break;
+            }
+            this->size += 1;
+
+            merge_sort(&this->first);
+            this->last = this->first;
+            for (int i = 1; i < (this->size); i++) {
+                this->last = this->last->next;
+            }
         }
-        this->size += 1;
-
-        merge_sort(&this->first);
-        this->last = this->first;
-        for (int i = 1; i < (this->size); i++) {
-            this->last = this->last->next;
+        catch (bad_alloc er) {
+            cerr << "error: " << er.what() << endl;
         }
-
     }
     void push_back(T1&& new_data) {
+        try {
 
-        Node* new_node = new Node(move(new_data));
+            Node* new_node = new Node(move(new_data));
 
-        switch (is_empty()) {
-        case true:
-            this->first = new_node;
-            this->last = new_node;
-            break;
-        case false:
-            this->last->next = new_node;
-            this->last = new_node;
-            break;
+            switch (is_empty()) {
+            case true:
+                this->first = new_node;
+                this->last = new_node;
+                break;
+            case false:
+                this->last->next = new_node;
+                this->last = new_node;
+                break;
+            }
+            this->size += 1;
+
+            merge_sort(&this->first);
+            this->last = this->first;
+            for (int i = 1; i < (this->size); i++) {
+                this->last = this->last->next;
+            }
         }
-        this->size += 1;
-
-        merge_sort(&this->first);
-        this->last = this->first;
-        for (int i = 1; i < (this->size); i++) {
-            this->last = this->last->next;
+        catch (bad_alloc er) {
+            cerr << "error: " << er.what() << endl;
         }
     }
 
@@ -274,7 +295,7 @@ public:
             return;
         }
     }
-    void delete_special_node(T1&& data) {
+    void delete_special_node(const T1&& data) {
 
 
         if (is_empty()) {
@@ -283,10 +304,12 @@ public:
         }
         if (data == this->first->data) {
             pop_front();
+            cout << "data " << '"' << data << '"' << " was deleted" << endl;
             return;
         }
         if (data == this->last->data) {
             pop_back();
+            cout << "data " << '"' << data << '"' << " was deleted" << endl;
             return;
         }
         Node* prev = this->first;
@@ -324,7 +347,7 @@ public:
         }
         }
     }
-    void print(Node* node) {
+    void print(const Node* node) {
         cout << node->data << endl;
     }
     
@@ -403,11 +426,23 @@ public:
     bool is_empty() {
         return first == nullptr;
     }
-    bool is_even(int size) {
+    bool is_even(const int size) {
         return size % 2 == 0;
     }
-    bool is_invalid(Node* node) {
+    bool is_invalid(const Node* node) {
         return node == nullptr;
+    }
+    bool is_data(const T1& data) {
+        Node* current = this->first;
+        for (int i = 0; i < (this->size); i++) {
+            if (current->data == data) {
+                return true;
+            }
+            else {
+                current = current->next;
+            }
+        }
+        return false;
     }
 
     void print_error_empty() {
@@ -424,7 +459,7 @@ public:
         return;
     }
 
-    void check_node_for_correctness(Node* current) {
+    void check_node_for_correctness(const Node* current) {
         if (is_invalid(current)) {
             throw invalid_argument("empty node is detected");
 
@@ -441,12 +476,71 @@ public:
         return 0;
     }
 
-    T1 get_data(Node& node) {
+    T1 get_data(const Node& node) {
         return node->data;
     }
     
 
     
+    // Для словаря
+    void insertItem(const T1& data) {
+        if (!this->is_data(data)) {
+            this->push_back(data);
+        }
+        else {
+            cout << "data " <<'"'<<data<<'"'<< " already exists" << endl;
+            return;
+        }
+    }
+    void insertItem(T1&& data) {
+        if (!this->is_data(data)) {
+            this->push_back(data);
+        }
+        else {
+            cout << "data " << '"' << data << '"' << " already exists" << endl;
+            return;
+        }
+    }
+    bool searchItem(const T1&& data) {
+        switch (this->is_data(data)) {
+        case true:
+            cout << "this element exists" << endl;
+            return true;
+        case false:
+            cout << "this element doesn't exist" << endl;
+            return false;
+        }
+
+    }
+    void deleteItem(const T1&& data) {
+        this->delete_special_node(move (data)); // move здесь, чтобы сохранить rvalue в виде rvalue
+    }
+    void deleteItems(const DictionaryList& other) {
+        int number_of_repeats = 0;
+        Node* this_current = this->first;
+        Node* other_current = other.first;
+        for (int i = 0; i < (other.size); i++) {
+            for (int j =0; j<(this->size); j++) { 
+                if (this_current->data == other_current->data) {
+                    number_of_repeats++;
+                }
+                if (this_current->next) {
+                    this_current = this_current->next;
+                }
+            }
+            for (int k = 0; k < number_of_repeats; k++) {
+                this->delete_special_node(move(other_current->data));
+            }
+            number_of_repeats = 0;
+            this_current = this->first;
+            if (other_current->next) {
+                other_current = other_current->next;
+            }
+        }
+    }
+
+
+
 
     // собсна, парочка функций для быстрой сортировки
 
@@ -518,4 +612,4 @@ public:
 
 */
     };
-#endif
+#endif;
