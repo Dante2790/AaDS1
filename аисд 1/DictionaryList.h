@@ -27,48 +27,11 @@ private:
     int size = 0;
 
 public:
-    /* 
-     
-     DictionaryList& operator=(DictionaryList&& other) {};
 
-     
-     void insertItem() {};
-     bool searchItem() {};
-     void deleteItem() {};
-
-     
-     
-
-
-     void deleteItems() {};
-     */
-    void print() {
-        switch (check_for_content()) {
-        case 1:
-            break;
-        case 0: {
-            Node* printing_node = this->first;
-            for (int i = 0; i < (this->size); i++) {
-                cout << printing_node->data << " -> ";
-                printing_node = printing_node->next;
-            }
-            cout << endl;
-            break;
-        }
-        }
-    }
-    void print(Node* node) {
-        cout << node->data << endl;
-    }
-    
-
-
+    // Конструкторы, операторы и деструктор
     DictionaryList() : size(0), first(nullptr), last(nullptr) {};
-    ~DictionaryList() noexcept {
-        clear();
-        cout << "list was deleted" << endl;
-    };
-    DictionaryList( const DictionaryList& other): size(0), first(nullptr), last(nullptr) {
+    
+    DictionaryList(const DictionaryList& other) : size(0), first(nullptr), last(nullptr) {
         try {
             if (other.first == nullptr) {
                 cout << "list is empty" << endl;
@@ -95,7 +58,7 @@ public:
     DictionaryList(DictionaryList&& other) : size(0), first(nullptr), last(nullptr) {
         try {
             if (other.first == nullptr) {
-                
+
                 throw invalid_argument("list is empty");
             }
             Node* current = other.first;
@@ -133,6 +96,7 @@ public:
             cerr << "error: " << er.what() << endl;
         }
     };
+
     DictionaryList& operator=(const DictionaryList& other) {
         try {
             if (other.first == nullptr) {
@@ -203,8 +167,14 @@ public:
         }
     };
 
-    
-    
+    ~DictionaryList() noexcept {
+        clear();
+        cout << "list was deleted" << endl;
+    };
+
+
+
+    // Вставка и удаление
     void push_back(const T1& new_data) {
 
         Node* new_node = new Node(new_data);
@@ -228,7 +198,6 @@ public:
         }
 
     }
-
     void push_back(T1&& new_data) {
 
         Node* new_node = new Node(move(new_data));
@@ -251,6 +220,7 @@ public:
             this->last = this->last->next;
         }
     }
+
     void pop_back() {
         try {
             if (is_empty()) {
@@ -265,7 +235,7 @@ public:
                 return;
             }
 
-            
+
             Node* current = this->first;
             for (int i = 2; i < (this->size); i++) {
                 current = current->next;
@@ -305,17 +275,17 @@ public:
         }
     }
     void delete_special_node(T1&& data) {
-        
-        
+
+
         if (is_empty()) {
             print_error_empty();
             return;
         }
-        if (data == this->first->data) { 
+        if (data == this->first->data) {
             pop_front();
             return;
         }
-        if (data == this->last->data) { 
+        if (data == this->last->data) {
             pop_back();
             return;
         }
@@ -335,29 +305,78 @@ public:
         cout << "node with data " << '"' << data << '"' << " doesn't exist" << endl;
         return;
     }
-    bool is_empty() {
-        return first == nullptr;
-    }
-    bool is_even(int size) {
-        return size % 2 == 0;
-    }
-    bool is_invalid(Node* node) {
-        return node == nullptr;
-    }
-    void print_error_empty() {
-        cerr << "sorry, but this list is empty" << endl;
-        return;
-    }
 
-    void print_loading() {
-        cout << "|*";
-        this_thread::sleep_for(chrono::seconds(1));
-        cout << "*";
-        this_thread::sleep_for(chrono::seconds(1));
-        cout << "*|" << endl;
-        this_thread::sleep_for(chrono::seconds(1));
-        return;
+
+
+    // Вывод
+    void print() {
+        switch (check_for_content()) {
+        case 1:
+            break;
+        case 0: {
+            Node* printing_node = this->first;
+            for (int i = 0; i < (this->size); i++) {
+                cout << printing_node->data << " -> ";
+                printing_node = printing_node->next;
+            }
+            cout << endl;
+            break;
+        }
+        }
     }
+    void print(Node* node) {
+        cout << node->data << endl;
+    }
+    
+
+
+    // Сортировка
+    void split(Node* source, Node** left, Node** right) {
+        Node* slow = source;
+        Node* fast = source->next;
+        while (fast && fast->next) {
+            slow = slow->next;
+            fast = fast->next->next;
+        }
+        *left = source;
+        *right = slow->next;
+
+        slow->next = nullptr;
+    }
+    Node* merge(Node* left, Node* right) {
+        if (!left) { return right; }
+        if (!right) { return left; }
+        Node* result;
+        if (left->data <= right->data) {
+            result = left;
+            result->next = merge(left->next, right);
+
+        }
+        else {
+            result = right;
+            result->next = merge(left, right->next);
+
+        }
+
+        return result;
+    }
+    void merge_sort(Node** source_ref) {
+        Node* source = *source_ref;
+        if (!source || !source->next) { return; }
+
+        Node* left;
+        Node* right;
+
+        split(source, &left, &right);
+        merge_sort(&left);
+        merge_sort(&right);
+        *source_ref = merge(left, right);
+
+    }
+    
+    
+    
+    // Необходимая (или нет...) мелочевка 
     void clear() noexcept {
         if (is_empty()) {
             return;
@@ -366,7 +385,7 @@ public:
         for (int i = 0; i < (this->size); i++) {
 
             try { check_node_for_correctness(this->first); }
-            catch (invalid_argument er) { 
+            catch (invalid_argument er) {
                 cerr << "error:" << er.what() << endl;
                 this->first = nullptr;
             }
@@ -380,6 +399,31 @@ public:
         this->last = nullptr;
         this->size = 0;
     }
+
+    bool is_empty() {
+        return first == nullptr;
+    }
+    bool is_even(int size) {
+        return size % 2 == 0;
+    }
+    bool is_invalid(Node* node) {
+        return node == nullptr;
+    }
+
+    void print_error_empty() {
+        cerr << "sorry, but this list is empty" << endl;
+        return;
+    }
+    void print_loading() {
+        cout << "|*";
+        this_thread::sleep_for(chrono::seconds(1));
+        cout << "*";
+        this_thread::sleep_for(chrono::seconds(1));
+        cout << "*|" << endl;
+        this_thread::sleep_for(chrono::seconds(1));
+        return;
+    }
+
     void check_node_for_correctness(Node* current) {
         if (is_invalid(current)) {
             throw invalid_argument("empty node is detected");
@@ -396,61 +440,13 @@ public:
         }
         return 0;
     }
+
     T1 get_data(Node& node) {
         return node->data;
     }
     
 
-    void split(Node* source, Node** left, Node** right) {
-        Node* slow = source;
-        Node* fast = source->next;
-        while (fast && fast->next) {
-            slow = slow->next;
-            fast = fast->next->next;
-        }
-        *left = source;
-        *right = slow->next;
-        
-        slow->next = nullptr;
-    }
-
-    Node* merge(Node* left, Node* right) {
-        if (!left) { return right; }
-        if (!right) { return left; }
-        Node* result;
-        if (left->data <= right->data) {
-            result = left;
-            result->next = merge(left->next, right);
-            
-        }
-        else {
-            result = right;
-            result->next = merge(left, right->next);
-            
-        }
-        
-        return result;
-    }
-    void print_while() {
-        Node* current = first;
-        while (current->next != nullptr) {
-            print(current);
-            current = current->next;
-        }
-    }
-    void merge_sort(Node** source_ref) {
-        Node* source = *source_ref;
-        if (!source || !source->next) { return; }
-
-        Node* left;
-        Node* right;
-
-        split(source, &left, &right);
-        merge_sort(&left);
-        merge_sort(&right);
-        *source_ref = merge(left, right);
-        
-    }
+    
 
     // собсна, парочка функций для быстрой сортировки
 
@@ -518,16 +514,8 @@ public:
         }
 
     }
-    */
     
-    /*template<typename T1, typename T2>
-    DictionaryList<T1, T2>::DictionaryList(const DictionaryList& other) : first(other.first), last(other.last), size(other.size) {}; //переделать//
 
-    template<typename T1, typename T2>
-    DictionaryList<T1, T2>::DictionaryList(DictionaryList&& other) : first(other.first), last(other.last), size(other.size) {
-        other.first(nullptr), other.last(nullptr), other.size(0)}; //переделать//
-
-    */
-
-};
+*/
+    };
 #endif
