@@ -106,7 +106,6 @@ public:
     DictionaryList& operator=(const DictionaryList& other) {
         try {
             if (other.first == nullptr) {
-                cout << "list is empty" << endl;
                 throw invalid_argument("list is empty");
             }
             this->clear();
@@ -127,15 +126,18 @@ public:
         }
         catch (invalid_argument er) {
             cerr << "error: " << er.what() << endl;
+            this->clear();
+            return *this;
         }
         catch (bad_alloc er) {
             cerr << "error: " << er.what() << endl;
+            this->clear();
+            return *this;
         }
     };
     DictionaryList& operator=(DictionaryList&& other) {
         try {
             if (other.first == nullptr) {
-                cout << "list is empty" << endl;
                 throw invalid_argument("list is empty");
             }
             this->clear();
@@ -173,9 +175,13 @@ public:
         }
         catch (invalid_argument er) {
             cerr << "error: " << er.what() << endl;
+            this->clear();
+            return *this;
         }
         catch (bad_alloc er) {
             cerr << "error: " << er.what() << endl;
+            this->clear();
+            return *this;
         }
     };
 
