@@ -297,36 +297,40 @@ public:
     }
     void delete_special_node(const T1&& data) {
 
-
-        if (is_empty()) {
-            print_error_empty();
-            return;
-        }
-        if (data == this->first->data) {
-            pop_front();
-            cout << "data " << '"' << data << '"' << " was deleted" << endl;
-            return;
-        }
-        if (data == this->last->data) {
-            pop_back();
-            cout << "data " << '"' << data << '"' << " was deleted" << endl;
-            return;
-        }
-        Node* prev = this->first;
-        Node* current = this->first->next;
-        for (int i = 1; i < (this->size - 1); i++) {
-            if (current->data == data) {
-                prev->next = current->next;
-                delete current;
+        try {
+            if (is_empty()) {
+                throw invalid_argument("list is empty");
+            }
+            if (data == this->first->data) {
+                pop_front();
                 cout << "data " << '"' << data << '"' << " was deleted" << endl;
-                this->size--;
                 return;
             }
-            prev = prev->next;
-            current = current->next;
+            if (data == this->last->data) {
+                pop_back();
+                cout << "data " << '"' << data << '"' << " was deleted" << endl;
+                return;
+            }
+            Node* prev = this->first;
+            Node* current = this->first->next;
+            for (int i = 1; i < (this->size - 1); i++) {
+                if (current->data == data) {
+                    prev->next = current->next;
+                    delete current;
+                    cout << "data " << '"' << data << '"' << " was deleted" << endl;
+                    this->size--;
+                    return;
+                }
+                prev = prev->next;
+                current = current->next;
+            }
+            cout << "node with data " << '"' << data << '"' << " doesn't exist" << endl;
+            return;
         }
-        cout << "node with data " << '"' << data << '"' << " doesn't exist" << endl;
-        return;
+        catch (invalid_argument er) {
+            cerr << "error: " << er.what() << endl;
+            return;
+        }
     }
 
 
