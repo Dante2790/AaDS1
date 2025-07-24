@@ -98,7 +98,7 @@ void test_list_functional() {
 	dict3.push_back(temp5);
 	dict3.push_back(32);
 	dict3.push_back(31);
-	dict3.push_back(234);
+	dict3.push_back(-234);
 	dict3.push_back(56);
 	dict3.print();
 
@@ -125,6 +125,7 @@ void test_list_functional() {
 	dict6.print();
 	dict6.clear();
 	dict6.print();
+	dict6.clear();
 
 	cout << endl << endl;
 	cout << "------------------------------------------------------------------------------" << endl;

@@ -34,7 +34,7 @@ public:
     DictionaryList(const DictionaryList& other) : size(0), first(nullptr), last(nullptr) {
         try {
             if (other.first == nullptr) {
-                cout << "list is empty" << endl;
+           //   cout << "list is empty" << endl;
                 throw invalid_argument("list is empty");
             }
             Node* current = other.first;
@@ -337,19 +337,26 @@ public:
 
     // Вывод
     void print() {
-        switch (check_for_content()) {
-        case 1:
-            break;
-        case 0: {
-            Node* printing_node = this->first;
-            for (int i = 0; i < (this->size); i++) {
-                cout << printing_node->data << " -> ";
-                printing_node = printing_node->next;
+        try {
+            switch (check_for_content()) {
+            case 1:
+                throw invalid_argument("list is empty");
+            case 0: {
+                Node* printing_node = this->first;
+                for (int i = 0; i < (this->size); i++) {
+                    cout << printing_node->data << " -> ";
+                    printing_node = printing_node->next;
+                }
+                cout << endl;
+                break;
             }
-            cout << endl;
-            break;
+            }
         }
+        catch (invalid_argument er) {
+            cerr << "error: " << er.what() << endl;
+            return;
         }
+        
     }
     void print(const Node* node) {
         cout << node->data << endl;
@@ -472,7 +479,7 @@ public:
     int check_for_content() {
         switch (is_empty()) {
         case true:
-            print_error_empty();
+    //      print_error_empty();
             return 1;
         case false:
             return 0;
